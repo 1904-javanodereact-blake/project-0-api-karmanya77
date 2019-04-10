@@ -1,7 +1,7 @@
 import { User } from "./model/user";
 import { Role } from "./model/role";
 
-export let roles = [
+export let roles : Role[] = [
     new Role(1,'admin'),
     new Role(2,'not admin')
 ];
