@@ -35,3 +35,7 @@ userRouter.get('/:id', (req,res) =>{
         res.sendStatus(404);
     }
 });
+
+userRouter.patch('',(req,res) => {
+    
+});
