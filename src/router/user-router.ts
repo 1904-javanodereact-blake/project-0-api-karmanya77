@@ -5,16 +5,16 @@ import * as userDao from "../daos/user.dao";
 
 export const userRouter = express.Router();
 
-userRouter.get('',
-async (req, res) => {
-    const users = await userDao.findAllUsers();
-    res.json(users);
-});
+userRouter.get('',[ 
+    authMiddleware(['admin']),
+    async (req, res) => {
+        const users = await userDao.findAllUsers();
+        res.json(users);
+}]);
 
-userRouter.post('/login', (req, res) => {
+userRouter.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
-
+    const user = await userDao.findByUsernameAndPassword(username, password);
     if (user) {
         req.session.user = user;
         res.json(user);
