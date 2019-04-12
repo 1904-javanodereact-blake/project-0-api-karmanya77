@@ -11,6 +11,6 @@ app.use(sessionMiddleware);
 
 app.use('/user',userRouter);
 
-app.listen(8082, () => {
+app.listen(8080, () => {
     console.log('Application Started.');
 });
