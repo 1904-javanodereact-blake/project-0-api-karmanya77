@@ -1,16 +1,15 @@
 import express from "express";
-import { users } from "../objectFile";
 import { authMiddleware } from "../middleware/auth.middleware";
 import * as userDao from "../daos/user.dao";
 
 export const userRouter = express.Router();
 
-userRouter.get('',[ 
+userRouter.get('', [
     authMiddleware(['admin']),
     async (req, res) => {
         const users = await userDao.findAllUsers();
         res.json(users);
-}]);
+    }]);
 
 userRouter.post('/login', async (req, res) => {
     const { username, password } = req.body;
@@ -25,26 +24,23 @@ userRouter.post('/login', async (req, res) => {
 
 });
 
-userRouter.get('/:id', async (req,res) =>{
-    const id : number = +req.params.id;
-    const user = await userDao.findUserById(id);  
+userRouter.get('/:id', async (req, res) => {
+    const id: number = +req.params.id;
+    const user = await userDao.findUserById(id);
     console.log(user);
     res.json(user);
 });
 
-userRouter.patch('',[authMiddleware(['admin'])],(req,res) => {
-    const {body} = req;
-    const user = users.find(u => u.userId === body.userId);
-    const {} = body;
-    if(!user){
-        res.sendStatus(404);
+userRouter.patch('', [authMiddleware(['admin']),
+async (req, res) => {
+    const { body } = req;
+    const user = body;
+    console.log('request to update user', user);
+    const result = await userDao.updateUserData(user);
+    if (!user) {
+        res.sendStatus(400);
     }
-    else{
-        for(const field in user){
-            if(body[field] != undefined){
-                user[field] = body[field];
-            }
-        }
-        res.json(user);
+    else {
+        res.json(result);
     }
-});
+}]);
