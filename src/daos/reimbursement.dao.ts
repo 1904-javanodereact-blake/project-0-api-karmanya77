@@ -66,21 +66,13 @@ export async function findReimbursementUserById(userId: number) {
 export async function submitReimbursement(data: Reimbursement) {
     let client: PoolClient;
     try {
-        const id: number = +data.reimbursementId;
-        console.log(id, typeof (id));
-        if (id === 0) {
-            client = await connectionPool.connect();
-            console.log(typeof (data.dateSubmitted));
-            const insertQuery = `insert into the_office.reimbursement (reimbursement_id,author,amount,date_submitted,description,status,type) 
-                            values ($1, $2, $3, $4, $5, $6, $7) returning *`;
-            const resultSet = await client.query(insertQuery, [data.reimbursementId, data.author, data.amount, data.dateSubmitted, data.description, data.status, data.type]);
-            const result = resultSet.rows[0];
-            return result;
-        }
-        else {
-            console.log('Reimbursement Id should be 0 !!!');
-            return undefined;
-        }
+        client = await connectionPool.connect();
+        console.log(typeof (data.dateSubmitted));
+        const insertQuery = `insert into the_office.reimbursement (author,amount,date_submitted,description,status,type) 
+                            values ($1, $2, $3, $4, $5, $6) returning *`;
+        const resultSet = await client.query(insertQuery, [data.author, data.amount, data.dateSubmitted, data.description, data.status, data.type]);
+        const result = resultSet.rows[0];
+        return result;
     }
     catch (err) {
         console.log(err);
@@ -91,25 +83,41 @@ export async function submitReimbursement(data: Reimbursement) {
     }
 }
 
-export async function updateReimbursement(updateData : Reimbursement) {
+export async function updateReimbursement(newReimb: Reimbursement) {
     let client: PoolClient;
     try {
         client = await connectionPool.connect();
-        const previousData = await client.query(`Select * from the_office.reimbursement where reimbursement_id = $1`,[updateData.reimbursementId]);
-        for(let field in previousData) {
-            if(updateData[field] != previousData[field] && updateData[field] != undefined) {
-                previousData[field] = updateData[field];
+        const current = await client.query(`Select * from the_office.reimbursement where reimbursement_id = $1`, [newReimb.reimbursementId]);
+
+        const cry = current.rows[0];
+
+        const convertedCr = convertSqlReimbursement(cry);
+        
+        for (let field in convertedCr) {
+            if (convertedCr[field] !== newReimb[field] && newReimb[field] !== undefined) {
+                convertedCr[field] = newReimb[field];
             }
         }
-        const updateQuery = `update the_office.reimbursement set reimbursement_id = $1,
-                                author = $2, amount = $3, date_submitted = $4, date_resolved = $5, 
-                                description = $6, resolver = $7, status = $8, type = $9
-                                where reimbursement_id = $10 
-                                returning *`;
-        await client.query(updateQuery,[
-            previousData.reimbursementId,previousData.author,previousData.amount,previousData.dateSubmitted,previousData.dateResolved,previousData.description,
-            previousData.resolver,previousData.status,previousData.type,previousData.reimbursementId
-        ]);
+        /* console.log(typeof(updateData.dateSubmitted)); */
+
+        /*  console.log(typeof(finalData.dateSubmitted));
+         console.log(finalData.dateResolved);
+         console.log(finalData.description);
+         console.log(finalData.amount); */
+        const updateQuery = `update the_office.reimbursement set
+                                author = $1, amount = $2, date_submitted = $3, date_resolved = $4, 
+                                description = $5, resolver = $6, status = $7, type = $8
+                                where reimbursement_id = $9`;
+        const result = await client.query(updateQuery, [
+            convertedCr.author, convertedCr.amount, convertedCr.dateSubmitted, convertedCr.dateResolved, convertedCr.description,
+            convertedCr.resolver, convertedCr.status, convertedCr.type, convertedCr.reimbursementId]);
+        const abc = result.rows[0];
+        if(abc) {
+            return abc
+        }
+        else {
+            return undefined;
+        }
     }
     catch (err) {
         console.log(err);

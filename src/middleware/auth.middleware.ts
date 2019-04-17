@@ -5,7 +5,7 @@ export function authMiddleware(roles : string[]) {
             next();
         }
         else{
-            res.sendStatus(403);
+            res.send(401);
         }
     }
 }

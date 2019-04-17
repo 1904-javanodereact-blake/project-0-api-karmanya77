@@ -8,7 +8,7 @@ export async function findAllUsers() {
   let client: PoolClient;
   try {
     client = await connectionPool.connect();
-    const sqlQuery = 'select * from the_office.users';
+    const sqlQuery = 'select * from the_office.users order by user_id';
     const result = await client.query(sqlQuery);
     return result.rows;
   }

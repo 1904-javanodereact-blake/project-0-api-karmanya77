@@ -41,8 +41,7 @@ reimbursementRouter.get('/author/userId/:userId',[
 
 reimbursementRouter.post('',
     async (req, res) => {
-        const {submittedData} = req.body;
-        const data = await reimbursementDao.submitReimbursement(submittedData);
+        const data = await reimbursementDao.submitReimbursement(req.body);
         if(data){
             res.json(data);
         }
@@ -57,13 +56,6 @@ reimbursementRouter.patch('',[
     async (req, res) => {
         const updateData = req.body;
         const result = await reimbursementDao.updateReimbursement(updateData);
-        if(result) {
-            res.json(result);
-        }
-        else {
-            res.sendStatus(403);
-        }
-    }
-
-]);
+        res.json(result);
+    }]);
 

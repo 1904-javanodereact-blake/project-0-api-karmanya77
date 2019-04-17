@@ -21,7 +21,6 @@ userRouter.post('/login', async (req, res) => {
     else {
         res.sendStatus(400);
     }
-
 });
 
 userRouter.get('/:id', async (req, res) => {
