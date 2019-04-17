@@ -5,7 +5,7 @@ import * as reimbursementDao from "../daos/reimbursement.dao";
 export const reimbursementRouter = express.Router();
 
 reimbursementRouter.get('/status/:statusId', [
-    authMiddleware(['admin']),
+    authMiddleware(['admin','finance manager']),
     async (req, res) => {
         const id : number = +req.params.statusId;
         const reimbursementData = await reimbursementDao.findReimbursementStatusById(id);
@@ -41,7 +41,7 @@ reimbursementRouter.get('/author/userId/:userId',[
 
 reimbursementRouter.post('',
     async (req, res) => {
-        const submittedData = req.body;
+        const {submittedData} = req.body;
         const data = await reimbursementDao.submitReimbursement(submittedData);
         if(data){
             res.json(data);
@@ -51,4 +51,19 @@ reimbursementRouter.post('',
         }
     }
 );
+
+reimbursementRouter.patch('',[
+    authMiddleware(['admin','finance manager']),
+    async (req, res) => {
+        const updateData = req.body;
+        const result = await reimbursementDao.updateReimbursement(updateData);
+        if(result) {
+            res.json(result);
+        }
+        else {
+            res.sendStatus(403);
+        }
+    }
+
+]);
 

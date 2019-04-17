@@ -67,13 +67,11 @@ export async function updateUserData(user: User) {
   let client = PoolClient;
   try {
     client = await connectionPool.connect();
-    console.log('updating user', user);
     const sqlQuery = `update the_office.users set 
           user_id = $1, username = $2, password = $3, firstname = $4, lastname = $5, email = $6, role = $7
           where user_id = $8`;
     const result = await client.query(sqlQuery,
-      [user.userId, user.username, user.password, user.firstName, user.lastName, user.email, user.role.roleId, user.userId]);
-    console.log('result', result);
+      [user.userId, user.username, user.password, user.firstName, user.lastName, user.email, user.role, user.userId]);
     const userData = result.rows[0];
     if (userData) {
       const convertedUser = convertUserSql(userData);

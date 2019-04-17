@@ -94,14 +94,28 @@ export async function submitReimbursement(data: Reimbursement) {
 export async function updateReimbursement(updateData : Reimbursement) {
     let client: PoolClient;
     try {
-        client = connectionPool.connect();
+        client = await connectionPool.connect();
+        const previousData = await client.query(`Select * from the_office.reimbursement where reimbursement_id = $1`,[updateData.reimbursementId]);
+        for(let field in previousData) {
+            if(updateData[field] != previousData[field] && updateData[field] != undefined) {
+                previousData[field] = updateData[field];
+            }
+        }
         const updateQuery = `update the_office.reimbursement set reimbursement_id = $1,
                                 author = $2, amount = $3, date_submitted = $4, date_resolved = $5, 
                                 description = $6, resolver = $7, status = $8, type = $9
-                                where reimbursement_id = $10`;
-        const result = await client.query(updateQuery,[]);
+                                where reimbursement_id = $10 
+                                returning *`;
+        await client.query(updateQuery,[
+            previousData.reimbursementId,previousData.author,previousData.amount,previousData.dateSubmitted,previousData.dateResolved,previousData.description,
+            previousData.resolver,previousData.status,previousData.type,previousData.reimbursementId
+        ]);
     }
     catch (err) {
-
+        console.log(err);
+        return undefined;
+    }
+    finally {
+        client && client.release();
     }
 }
