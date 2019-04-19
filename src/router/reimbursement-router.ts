@@ -4,6 +4,12 @@ import * as reimbursementDao from "../daos/reimbursement.dao";
 
 export const reimbursementRouter = express.Router();
 
+reimbursementRouter.get('/dummy',
+    (req, res) => {
+        console.log('inside');
+        res.send('dummy request');
+});
+
 reimbursementRouter.get('/status/:statusId', [
     authMiddleware(['admin','finance manager']),
     async (req, res) => {

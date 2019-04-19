@@ -6,6 +6,8 @@ import { sessionMiddleware } from "./middleware/sessionMiddleware";
 
 const app = express();
 
+const port = process.env.SHIP_PORT || 8080;
+
 app.use(bodyParser.json());
 
 app.use(sessionMiddleware);
@@ -14,6 +16,6 @@ app.use('/user',userRouter);
 
 app.use('/reimbursement',reimbursementRouter);
 
-app.listen(8080, () => {
-    console.log('Application Started.');
+app.listen(port, () => {
+    console.log('Application Started with port number : ',port);
 });
